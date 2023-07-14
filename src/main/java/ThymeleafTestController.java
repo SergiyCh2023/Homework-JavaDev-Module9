@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 
-@WebServlet("/test")
+@WebServlet("/time")
 public class ThymeleafTestController extends HttpServlet {
     private TemplateEngine engine;
     private String currentTimeUTC;
@@ -52,7 +52,8 @@ public class ThymeleafTestController extends HttpServlet {
 
             if (cookie==null) {
                 currentTimeUTC = LocalDateTime.now().format(DateTimeFormatter.ofPattern(
-                        "  HH:mm:ss  "));
+                        " yyyy-MM-dd ''  HH:mm:ss  "));
+                        utc = "UTC";
             }  else {
                 Cookie[] cookies = req.getCookies();
 
@@ -63,7 +64,8 @@ public class ThymeleafTestController extends HttpServlet {
                 }
                 if (utc!=null) {
                     currentTimeUTC = LocalDateTime.now(ZoneId.of(utc.replace(" ", ""))).format(DateTimeFormatter.ofPattern(
-                            " HH:mm:ss  "));
+                            " yyyy-MM-dd  ''  HH:mm:ss  "));
+                            utc = utc;
                 }
             }
 
@@ -79,15 +81,17 @@ public class ThymeleafTestController extends HttpServlet {
             resp.addCookie(cookie = new Cookie("lastTimezone", utc));
 
             currentTimeUTC = LocalDateTime.now(ZoneId.of(utc.replace(" ", ""))).format(DateTimeFormatter.ofPattern(
-                    " HH:mm:ss  "));
+                    " yyyy-MM-dd '' HH:mm:ss  "));
         }
 
 
             Context simpleContext = new Context(
                     req.getLocale(),
-                    Map.of("currentTime", currentTimeUTC)
+                    Map.of("currentTime", currentTimeUTC, "UTC", utc)
             );
 
+
+        // 2022-01-05 12:05:01 UTC+2
             engine.process("index", simpleContext, resp.getWriter());
             resp.getWriter().close();
         }
